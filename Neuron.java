@@ -14,6 +14,7 @@ public class Neuron
     private double value;
     
     /** Constructor of a Neuron object
+     * @param layerNumber The indices of the layer the neuron is located in
      * @param bias The double value of the bias of the neuron
      * @param weights A double[] of the weights*/
     public Neuron(int layerNumber, double bias, double[] weights) {
@@ -54,13 +55,19 @@ public class Neuron
         return this.layerNumber;
     }
     
+    /** Returns the double value of this neuron
+     * @return The double value of this neuron*/
+    public double getValue() {
+        return this.value;
+    }
+    
     /** Calculates the value of the neuron
      * Should be passed an int[] of values
      * Sums the products of each weight multipled by each respective value and add this neurons bias
      * It them returns the value of the neuron
-     * @param values int[] of the values of each neuron in the previous layer
+     * @param values double[] of the values of each neuron in the previous layer
      * @return A double of the neurons value*/
-    public double calculate(int[] values){
+    public double calculate(double[] values){
         
         // the summ of the products of each weight multiplied by each respective value of the previous
         double sum = 0;
@@ -78,8 +85,7 @@ public class Neuron
         return this.value;
     
     }
-    
-    
+        
     /**Applies the sigmoid function on the parameter and returns the output as a double
      * @param x The input of the sigmoid function
      * @return The output of the sigmoid function*/

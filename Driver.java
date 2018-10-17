@@ -16,12 +16,15 @@ public class Driver
         String[] typesOfValues;
         String[] arrayOfValues;
         String values;
+        // TODO
+        // Network network = new Network();
         
         // read in the file and create an array of types of values
         BufferedReader bf = new BufferedReader(new FileReader("src/predictathon/Train.csv"));
         String typesOfValuesLongString = bf.readLine();
         typesOfValues = typesOfValuesLongString.split(",");
         
+        System.out.println(Arrays.toString(typesOfValues));
         
         // prime the while loop, read in the first array of values
         values = bf.readLine();
