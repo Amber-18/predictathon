@@ -11,13 +11,20 @@ public class Driver
 
     public static void main(String[] args) throws IOException
     {
+        // create starting variables
+        ArrayList<Person> people = new ArrayList<>();
+        String[] typesOfValues;
+        String[] arrayOfValues;
+        String values;
+        
+        // read in the file and create an array of types of values
         BufferedReader bf = new BufferedReader(new FileReader("src/predictathon/Train.csv"));
         String typesOfValuesLongString = bf.readLine();
-        String[] typesOfValues = typesOfValuesLongString.split(",");
+        typesOfValues = typesOfValuesLongString.split(",");
         
-        String values = bf.readLine();
-        String[] arrayOfValues;
-        ArrayList<Person> people = new ArrayList<>();
+        
+        // prime the while loop, read in the first array of values
+        values = bf.readLine();
         
         while(values != null) {
             arrayOfValues = values.split(",");
@@ -27,7 +34,7 @@ public class Driver
             values = bf.readLine();
         }
         
-        System.out.println(people.size());
+        
         
         
         bf.close();
