@@ -9,6 +9,10 @@ public class Network
     /** The output data of the network*/
     private double[] outputData;
     
+    /** Takes in an int[] holding the sizes of the layer of the network
+     * The length of the array is the number of layers
+     * The value of the int in each index is the number of neurons each layer is to have
+     * @param layerSizes The int[] of layer sizes for the neural network*/
     public Network(int[] layerSizes) {
         
         this.network = new HashMap<>();
@@ -55,6 +59,8 @@ public class Network
     }
     
     /** Runs the network
+     * Input a double[] of the input data
+     * The input array should be the same length as the number of input neurons in the network
      * @param inputdata A double[] of the input data
      * @return A double[] of the output data*/
     public double[] run(double[] inputData){

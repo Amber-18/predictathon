@@ -14,92 +14,41 @@ public class Driver
     public static void main(String[] args) throws IOException
     {
         // create starting variables
-        People people = createPeople();
+        People people = new People("src/Train.csv", "2000");
         
         // the types that we are focused on
-        people.addToImportantTypes("country");
-        people.addToImportantTypes("pageviews");
-        people.addToImportantTypes("hits");
-        people.addToImportantTypes("timeSinceLastVisit");
+        people.addToImportantValues("country");
+        people.addToImportantValues("pageviews");
+        people.addToImportantValues("hits");
+        people.addToImportantValues("timeSinceLastVisit");
         
-        int numCountries = people.getValuesOf("country").size();
+        // make sure a random sampling of input arrays all have the same dimensions
+        int size1 = people.constructInputArray(people.getPerson((int)(Math.random() * 2000))).length;
+        int size2 = people.constructInputArray(people.getPerson((int)(Math.random() * 2000))).length;
+        int size3 = people.constructInputArray(people.getPerson((int)(Math.random() * 2000))).length;
+        int size4 = people.constructInputArray(people.getPerson((int)(Math.random() * 2000))).length;
         
+        if(size1 == size2 && size1 == size3 && size1 == size4) {
+            System.out.println("Inputs are functioning!");
+            
+        } else {
+            System.out.println("Inputs are not functioning! Help!");
+        }
         
-        int inputLayerSize = 3 + numCountries;
+        int[] layerSizes = {size1, size1+20, 2};
         
-        int[] layerSizes = new int[3];
-        
-        layerSizes[0] = inputLayerSize;
-        layerSizes[1] = inputLayerSize + 20;
-        layerSizes[2] = 2;
+        System.out.println(Arrays.toString(layerSizes));
         
         Network network = new Network(layerSizes);
         
-        double[] inputData = new double[inputLayerSize];
+        double[] inputData = people.constructInputArray(people.getPerson((int)(Math.random() * 2000)));
         
-        //just run it for one person
-        HashMap<String, String> mapOfInput = people.getPerson(1).getValues(people.getImportantTypes());
+        double[] outputData = network.run(inputData);
         
-        inputData[0] = Double.valueOf(mapOfInput.get("pageviews"));
-        inputData[1] = Double.valueOf(mapOfInput.get("hits"));
-        inputData[2] = Double.valueOf(mapOfInput.get("timeSinceLastVisit"));
+        System.out.println(Arrays.toString(outputData));
         
-        inputData = inputForCountries(inputData, people.getValuesOf("country"));
-        
-        
-        network.run(inputData);
-        
-        
+        // need to fix the network arrays layer sizes, output is wrong size!
         
 
     }
-    
-    /** Creates and returns the People object containing the Person's created from the data file*/
-    public static People createPeople() throws IOException {
-        
-        String[] typesOfValues;
-        String[] arrayOfValues;
-        String values;
-        People people;
-        
-        // read in the file and create an array of types of values
-        BufferedReader bf = new BufferedReader(new FileReader("src/Train.csv"));
-        String typesOfValuesLongString = bf.readLine();
-        typesOfValues = typesOfValuesLongString.split(",");
-        
-        
-        // prime the while loop, read in the first array of values
-        values = bf.readLine();
-        arrayOfValues = values.split(",");
-        
-        people = new People(typesOfValues);
-        
-        int i = 0;
-        // values != null
-        while(i < 50000) {
-            arrayOfValues = values.split(",");
-            
-            people.add(new Person(typesOfValues, arrayOfValues));
-            
-            values = bf.readLine();
-            
-            ++i;
-        }
-        
-        return people;
-        
-    }
-    
-    public static double[] inputForAVariableType(double[] inputData, ArrayList<String> types) {
-        
-        Collections.sort(types);
-        
-        
-        int i = 0;
-        // TODO current work is here, and null double[] index is actually 0.0, not null
-        while(inputData[i] != 0.0) {
-            ++i;
-        }
-    }
-
 }
