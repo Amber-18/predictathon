@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Network
@@ -22,12 +23,24 @@ public class Network
         int sizeOfLayer;
         int sizeOfPreviousLayer;
         
+        // add the input layer to the network
+        // for every input neuron, add it to the input layer
+        for(int inputNeuronIndex = 0; inputNeuronIndex < layerSizes[0]; ++inputNeuronIndex) {
+            double inputBias = -999;
+            double[] inputWeights = {-999.0};
+            layer.add(new Neuron(0, inputBias, inputWeights));
+        }
+        
+        // add the input layer, index 0, to the network
+        this.network.put(new Integer(0), layer);
+        
         // for every layer in the network
         for(int layerIndex = 1; layerIndex < layerSizes.length; ++layerIndex) {
-            
+
             // get the size of that layer and the previous layer
             sizeOfLayer = layerSizes[layerIndex];
             sizeOfPreviousLayer = layerSizes[layerIndex-1];
+            
             
             // for every neuron in that layer, randomize the neuron, and add it to layer
             for(int neuron = 0; neuron < sizeOfLayer; ++neuron) {
@@ -65,21 +78,28 @@ public class Network
      * @return A double[] of the output data*/
     public double[] run(double[] inputData){
         
-        Neuron neuron;
+        System.out.println(this.network.keySet());
+        
+        // confirm array of input data is compatible with number of input neurons
+        if(inputData.length != this.network.get(1).size()) {
+            System.out.println("Input array is not compatible with this network!");
+        }
+        
+        Neuron theCurrentNeuron;
         double[] outputData = new double[0];
 
         // for every layer in the network after the input layer
         for(int layerNumber = 1; layerNumber < this.network.size(); ++layerNumber){
-            
+                        
             // output data for every neuron this layer
             outputData = new double[this.network.get(layerNumber).size()];
             
             // for every  neuron in that layer, calculate the value of that neuron
             for(int neuronIndex = 0; neuronIndex <this.network.get(layerNumber).size(); ++neuronIndex) {
-                neuron = this.network.get(layerNumber).get(neuronIndex);
-                neuron.calculate(inputData);
+                theCurrentNeuron = this.network.get(layerNumber).get(neuronIndex);
+                theCurrentNeuron.calculate(inputData);
                 
-                outputData[neuronIndex] = neuron.getValue();
+                outputData[neuronIndex] = theCurrentNeuron.getValue();
             }
             
             // the output data for this layer is the input data for the next layer
@@ -94,6 +114,8 @@ public class Network
         this.outputData = outputData;
         return outputData;
     }
+    
+    /**TODO*/
     
     /** Evaluates TODO*/
     public void train() {

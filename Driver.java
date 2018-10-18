@@ -37,7 +37,7 @@ public class Driver
         
         int[] layerSizes = {size1, size1+20, 2};
         
-        System.out.println(Arrays.toString(layerSizes));
+        // System.out.println(Arrays.toString(layerSizes));
         
         Network network = new Network(layerSizes);
         
@@ -45,7 +45,7 @@ public class Driver
         
         double[] outputData = network.run(inputData);
         
-        System.out.println(Arrays.toString(outputData));
+        // System.out.println(Arrays.toString(outputData));
         
         // need to fix the network arrays layer sizes, output is wrong size!
         
