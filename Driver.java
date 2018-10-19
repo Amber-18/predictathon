@@ -14,7 +14,7 @@ public class Driver
     public static void main(String[] args) throws IOException
     {
         // create starting variables
-        People people = new People("src/Train.csv", "2000");
+        People people = new People("src/Train.csv", "9000");
         
         // the types that we are focused on
         people.addToImportantValues("country");
@@ -37,7 +37,7 @@ public class Driver
         
         int[] layerSizes = {size1, size1+20, 2};
         
-        // System.out.println(Arrays.toString(layerSizes));
+        System.out.println(Arrays.toString(layerSizes));
         
         Network network = new Network(layerSizes);
         
@@ -45,9 +45,25 @@ public class Driver
         
         double[] outputData = network.run(inputData);
         
-        // System.out.println(Arrays.toString(outputData));
+        double[] expected = {1.0, 1.0};
         
-        // need to fix the network arrays layer sizes, output is wrong size!
+        boolean isEqual = false;
+        
+        for(int i = 0; i < 300; ++i) {
+            inputData = people.constructInputArray(people.getPerson((int)(Math.random() * 2000)));
+            outputData = network.run(inputData);
+            
+            if(expected[0] != outputData[0] && expected[1] != outputData[1])
+                isEqual = true;
+            
+            if(isEqual) {
+                System.out.println(Arrays.toString(outputData));
+            }
+        }
+        
+        
+        // all the outputs are the same vector!, make sure this isn't a bug!
+        // otherwise, no other bugs i think
         
 
     }

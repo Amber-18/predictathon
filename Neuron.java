@@ -7,19 +7,14 @@ public class Neuron
     /** The array of the weights of connections to previous layer of neurons*/
     private double[] weights;
     
-    /** The int value of the layer number the neuron is in*/
-    private int layerNumber;
-    
     /** The value of the neuron after calculations*/
     private double value;
     
     /** Constructor of a Neuron object
-     * @param layerNumber The indices of the layer the neuron is located in
      * @param bias The double value of the bias of the neuron
      * @param weights A double[] of the weights*/
-    public Neuron(int layerNumber, double bias, double[] weights) {
+    public Neuron(double bias, double[] weights) {
         this.value = Double.NaN;
-        this.layerNumber = layerNumber;
         this.bias = bias;
         this.weights = weights;
     }
@@ -49,12 +44,6 @@ public class Neuron
         return this.weights[i];
     }
     
-    /** Returns the index of the layer where the neuron is located
-     * @return The index of the neuron's location*/
-    public double getLayerNumber() {
-        return this.layerNumber;
-    }
-    
     /** Returns the double value of this neuron
      * @return The double value of this neuron*/
     public double getValue() {
@@ -69,7 +58,7 @@ public class Neuron
      * @return A double of the neurons value*/
     public double calculate(double[] values){
         
-        // the summ of the products of each weight multiplied by each respective value of the previous
+        // the sum of the products of each weight multiplied by each respective value of the previous
         double sum = 0;
         
         // calculate the sum
