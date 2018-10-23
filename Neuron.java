@@ -1,20 +1,26 @@
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.LinkedList;
+
+import org.nevec.rjm.BigDecimalMath;
 
 public class Neuron
 {
     /** The bias of the neuron */
-    private double bias;
+    private BigDecimal bias;
     
     /** The array of the weights of connections to previous layer of neurons*/
-    private double[] weights;
+    private LinkedList<BigDecimal> weights;
     
     /** The value of the neuron after calculations*/
-    private double value;
+    private BigDecimal value;
     
     /** Constructor of a Neuron object
      * @param bias The double value of the bias of the neuron
      * @param weights A double[] of the weights*/
-    public Neuron(double bias, double[] weights) {
-        this.value = Double.NaN;
+    public Neuron(BigDecimal bias, LinkedList<BigDecimal> weights) {
+        this.value = new BigDecimal("0.0");
         this.bias = bias;
         this.weights = weights;
     }
@@ -22,31 +28,37 @@ public class Neuron
     /** Sets the value of a specific weight
      * @param index The specific weight to set
      * @param value The value of the weight to be set*/
-    public void setWeight(int index, double value) {
-        this.weights[index] = value;
+    public void setWeight(int index, BigDecimal value) {
+        this.weights.set(index, value);
     }
     
     /** Sets the value of a specific weight
      * @param value The value of the bias*/
-    public void setBias(double value) {
+    public void setBias(BigDecimal value) {
         this.bias = value;
     }
     
     /** Returns the bias of the neuron
      * @return The bias of the neuron*/
-    public double getBias() {
+    public BigDecimal getBias() {
         return this.bias;
     }
     
     /** Returns the specific weight of the neuron
      * @return The specific weight of the neuron*/
-    public double getWeight(int i) {
-        return this.weights[i];
+    public BigDecimal getWeight(int i) {
+        return this.weights.get(i);
     }
     
-    /** Returns the double value of this neuron
-     * @return The double value of this neuron*/
-    public double getValue() {
+    /** Returns the number of weights this neuron has
+     * @return The number of weights*/
+    public int size() {
+        return this.weights.size();
+    }
+    
+    /** Returns the BigDecimal value of this neuron
+     * @return The BigDecimal object of the value of this neuron*/
+    public BigDecimal getValue() {
         return this.value;
     }
     
@@ -56,32 +68,53 @@ public class Neuron
      * It them returns the value of the neuron
      * @param values double[] of the values of each neuron in the previous layer
      * @return A double of the neurons value*/
-    public double calculate(double[] values){
+    public BigDecimal calculate(LinkedList<BigDecimal> values){
         
         // the sum of the products of each weight multiplied by each respective value of the previous
-        double sum = 0;
+        BigDecimal sum = new BigDecimal(0);
+        BigDecimal WxV = new BigDecimal(0);
         
         // calculate the sum
-        for(int i = 0; i < values.length; ++i) {
-            sum = sum + (values[i] * this.weights[i]);
+        for(int i = 0; i < values.size(); ++i) {
+            WxV = this.weights.get(i).multiply(values.get(i));
+            sum = sum.add(WxV);
         }
         
         // add the bias, pass through sigmoid, set the neurons value, and return
-        sum = sum + bias;
+        sum = sum.add(this.bias);
         sum = sigmoid(sum);
         this.value = sum;
         
+        // return the value of this neuron
         return this.value;
     
     }
         
-    /**Applies the sigmoid function on the parameter and returns the output as a double
+    /**Applies the sigmoid function on the parameter and returns the output as a BigDecimal
      * @param x The input of the sigmoid function
      * @return The output of the sigmoid function*/
-    public static double sigmoid(double x){
-
-        x = 1 / (1 + Math.exp((-1)*x));
-        return x;
+    public static BigDecimal sigmoid(BigDecimal x){
+        
+        // create a mathcontext object, 220 precision
+        MathContext mc = new MathContext(120, RoundingMode.HALF_EVEN);
+        BigDecimal one = new BigDecimal("1");
+        
+        // get e for the sigmoid
+        BigDecimal e = BigDecimalMath.exp(mc);
+        
+        // e ^ x
+        BigDecimal result = BigDecimalMath.pow(e, x);
+        
+        // e^-x = 1 / e^x
+        result = one.divide(result, mc);
+        
+        // add one
+        result = result.add(one);
+        
+        // divide by one again
+        result = one.divide(result, mc);
+        
+        return result;
 
     }
     

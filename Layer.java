@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -19,15 +20,16 @@ public class Layer
         this.index = index;
         
         if(index > 0) {
+            // for every neuron in this layer, randomize weight for each connection to previous neurons and bias
             for(int i = 0; i < numberOfNeurons; ++i) {
-                double bias = Math.random();
-                double[] weights = randomize(new double[numberOfPreviousNeurons]);
+                BigDecimal bias = new BigDecimal(String.valueOf(Math.random()));
+                LinkedList<BigDecimal> weights = randomizeWeights(numberOfPreviousNeurons);
                 this.layer.add(new Neuron(bias, weights));
             }
         } else {
             for(int i = 0; i < numberOfNeurons; ++i) {
-                double bias = Math.random();
-                double[] weights = randomize(new double[0]);
+                BigDecimal bias = new BigDecimal("0.0");
+                LinkedList<BigDecimal> weights = randomizeWeights(0);
                 this.layer.add(new Neuron(bias, weights));
             }
             
@@ -48,18 +50,18 @@ public class Layer
         this.layer.add(neuron);
     }
     
-    /** Runs the currents layer using the double[] of inputs passed to it
-     * Returns a double[] of the output of this layer
+    /** Runs the currents layer using the LinkedList<BigDecimal> of inputs passed to it
+     * Returns a LinkedList<BigDecimal> of the output of this layer
      * @param inputs The input data
      * @return The output data*/
-    public double[] runLayer(double[] inputs) {
+    public LinkedList<BigDecimal> runLayer(LinkedList<BigDecimal> inputs) {
         LinkedList<Neuron> layer = this.layer;
         
-        double[] output = new double[layer.size()];
+        LinkedList<BigDecimal> output = new LinkedList<>();
         
-        // for every neuron in this layer
+        // for every neuron in this layer, calculate that neuron using the inputs
         for(int i = 0; i < layer.size(); ++i) {
-            output[i] = layer.get(i).calculate(inputs);
+            output.add(layer.get(i).calculate(inputs));
         }
         
         return output;
@@ -70,14 +72,22 @@ public class Layer
      * 0.0 <= x < 1.0
      * @param values The double[] of values to be randomized
      * @return The double[] of randomized values*/
-    private double[] randomize(double[] values) {
+    private LinkedList<BigDecimal> randomizeWeights(int numWeights) {
         
-        // for every value in values, randomize that value, and return that array
-        for(int i = 0; i < values.length; ++i) {
-            values[i] = Math.random();
+        LinkedList<BigDecimal> weights = new LinkedList<>();
+        
+        // numWeight = 0, this is input layer, so weight = 0 and size = 1
+        if(numWeights == 0) {
+            weights.add(new BigDecimal("0"));
+            return weights;
+        } 
+        
+        // for every weight in the list, randomize that value, and return that array
+        for(int i = 0; i < numWeights; ++i) {
+            weights.add(new BigDecimal(String.valueOf(Math.random())));
         }
         
-        return values;
+        return weights;
     }
     
     /** Return the size of this layer

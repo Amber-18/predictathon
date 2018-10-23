@@ -14,7 +14,7 @@ public class Driver
     public static void main(String[] args) throws IOException
     {
         // create starting variables
-        People people = new People("src/Train.csv", "9000");
+        People people = new People("src/Train.csv", "2001");
         
         // the types that we are focused on
         people.addToImportantValues("country");
@@ -35,35 +35,48 @@ public class Driver
             System.out.println("Inputs are not functioning! Help!");
         }
         
-        int[] layerSizes = {size1, size1+20, 2};
+        // int[] layerSizes = {size1, size1+20, 2};
         
-        System.out.println(Arrays.toString(layerSizes));
+        // System.out.println(Arrays.toString(layerSizes));
+        // double[] input = people.constructInputArray(people.getPerson((int)(Math.random() * 2000)));
+        
+        
+        
+        int[] layerSizes = {1, 20, 1};
+        double[] input = {0.1, 0.9};
+        double[] expected = {0.35, 0.65};
+        
         
         Network network = new Network(layerSizes);
         
-        double[] inputData = people.constructInputArray(people.getPerson((int)(Math.random() * 2000)));
+        int j = 0;
         
-        double[] outputData = network.run(inputData);
-        
-        double[] expected = {1.0, 1.0};
-        
-        boolean isEqual = false;
-        
-        for(int i = 0; i < 300; ++i) {
-            inputData = people.constructInputArray(people.getPerson((int)(Math.random() * 2000)));
-            outputData = network.run(inputData);
+        for(int i = 0; i < 2000; ++i) {
+            System.out.println();
+            double X = expected[j];
+            double Y = input[j];
+            double[] x = {X};
+            double[] y = {Y};
             
-            if(expected[0] != outputData[0] && expected[1] != outputData[1])
-                isEqual = true;
+            System.out.println(Arrays.toString(x));
+            network.run(y);
+            network.train(x, y);
+            network.run(y);
+            System.out.println(Arrays.toString(network.getFinalData()));
+            ++j;
             
-            if(isEqual) {
-                System.out.println(Arrays.toString(outputData));
+            try {
+                double xx = expected[j];
+            } catch(Exception e) {
+                j = 0;
             }
         }
         
+        double[] inputs = {0.5};
         
-        // all the outputs are the same vector!, make sure this isn't a bug!
-        // otherwise, no other bugs i think
+        System.out.println(Arrays.toString(network.run(inputs)));
+
+        
         
 
     }
