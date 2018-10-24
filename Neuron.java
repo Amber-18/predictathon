@@ -2,6 +2,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.nevec.rjm.BigDecimalMath;
 
@@ -28,8 +29,12 @@ public class Neuron
     /** Sets the value of a specific weight
      * @param index The specific weight to set
      * @param value The value of the weight to be set*/
-    public void setWeight(int index, BigDecimal value) {
-        this.weights.set(index, value);
+    public void setWeights(LinkedList<BigDecimal> weights) {
+        this.weights = weights;
+    }
+    
+    public void setWeight(int index, BigDecimal weight) {
+        this.weights.set(index, weight);
     }
     
     /** Sets the value of a specific weight
@@ -50,12 +55,6 @@ public class Neuron
         return this.weights.get(i);
     }
     
-    /** Returns the number of weights this neuron has
-     * @return The number of weights*/
-    public int size() {
-        return this.weights.size();
-    }
-    
     /** Returns the BigDecimal value of this neuron
      * @return The BigDecimal object of the value of this neuron*/
     public BigDecimal getValue() {
@@ -70,13 +69,18 @@ public class Neuron
      * @return A double of the neurons value*/
     public BigDecimal calculate(LinkedList<BigDecimal> values){
         
+        if(values.size() != this.weights.size()) {
+            System.out.println("Input values for this neuron are not compatible with the number of weights this neuron has!");
+        }
         // the sum of the products of each weight multiplied by each respective value of the previous
         BigDecimal sum = new BigDecimal(0);
         BigDecimal WxV = new BigDecimal(0);
         
+        List<Pair<BigDecimal, BigDecimal>> pairs = zip(values);
+        
         // calculate the sum
-        for(int i = 0; i < values.size(); ++i) {
-            WxV = this.weights.get(i).multiply(values.get(i));
+        for(Pair<BigDecimal, BigDecimal> pair : pairs) {
+            WxV = pair.getKey().multiply(pair.getValue());
             sum = sum.add(WxV);
         }
         
@@ -118,7 +122,25 @@ public class Neuron
 
     }
     
+    private LinkedList<Pair<BigDecimal, BigDecimal>> zip(LinkedList<BigDecimal> values) {
+        LinkedList<Pair<BigDecimal, BigDecimal>> pairs = new LinkedList<>();
+        
+        for(int i = 0; i < values.size(); ++i) {
+            pairs.add(new Pair<BigDecimal, BigDecimal>(this.weights.get(i), values.get(i)));
+        }
+        
+        return pairs;
+    }
     
+    /** Returns the number of weights this neuron has
+     * @return The number of weights*/
+    public int size() {
+        return this.weights.size();
+    }
+    
+    public LinkedList<BigDecimal> getWeights(){
+        return this.weights;
+    }
     
     
 

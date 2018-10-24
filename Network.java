@@ -2,7 +2,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class Network
 {
@@ -13,25 +15,29 @@ public class Network
     private LinkedList<BigDecimal> outputData;
     
     /** The learning rate of this network*/
-    private BigDecimal learningCurve;
+    private BigDecimal learningRate;
+    
+    private int inputSize;
     
     /** Takes in an int[] holding the sizes of the layer of the network
      * The length of the array is the number of layers
      * The value of the int in each index is the number of neurons each layer is to have
      * @param layerSizes The int[] of layer sizes for the neural network*/
-    public Network(int[] layerSizes) {
+    public Network(LinkedList<Integer> layerSizes, String learningRate) {
         
-        this.learningCurve = new BigDecimal("0.01");
-        
+        this.learningRate = new BigDecimal(learningRate);
+        this.inputSize = (int)layerSizes.get(0);
         this.network = new LinkedList<Layer>();
-        
-        // add the input layer, size of previous layer is 0
-        this.network.add(new Layer(layerSizes[0], 0, 0));
-        
-        // add all the other layers
-        for(int i = 1; i < layerSizes.length; ++i) {
-            this.network.add(new Layer(layerSizes[i], layerSizes[i-1], i));
+
+        // add all the layers to the network
+        int numWeights = 0;
+        for(Integer layerSize : layerSizes) {
+            this.network.add(new Layer(layerSize, numWeights));
+            numWeights = layerSize.intValue();
         }
+        
+        // remove the input layer it is not needed anymore
+        this.network.remove(0);
         
     }
     
@@ -43,17 +49,17 @@ public class Network
     public LinkedList<BigDecimal> run(LinkedList<BigDecimal> input){
         
         // confirm array of input data is compatible with number of input neurons
-        if(input.size() != this.network.get(0).size()) {
+        if(input.size() != this.inputSize)
             System.out.println("Input array is not compatible with inputs in order to run this network!");
-        }
+        
         
         LinkedList<BigDecimal> output = new LinkedList<>();
         
         // for every layer in the network
-        for(int i = 1; i < this.network.size(); ++i) {
+        for(Layer layer : this.network) {
             
             // run the layer and assign its output to the next layers input
-            output = this.network.get(i).runLayer(input);
+            output = layer.runLayer(input);
             input = output;
         }
         
@@ -77,39 +83,39 @@ public class Network
             System.out.println("Size of expected array is not compatible with output of this network!");
         }
         
-        this.run(input);
+        LinkedList<BigDecimal> output = this.run(input);
+        BigDecimal originalCost = calculateCost(expected, output);
+        BigDecimal costForHigher;
+        BigDecimal costForLower;
+        BigDecimal bias;
+        BigDecimal higherWeight;
+        BigDecimal lowerWeight;
+        BigDecimal higherBias;
+        BigDecimal lowerBias;
+        int index;
         
-        LinkedList<BigDecimal> output = this.outputData;
 
         // for every layer in this network, starting with the last layer
-        for(int layerX = this.network.size()-1; layerX > 0; --layerX) {
-            Layer layer = this.network.get(layerX);
+        for(int i = this.network.size()-1; i >= 0; --i) {
+            
+            Layer layer = this.network.get(i);
             
             // for every neuron in that layer
-            for(int neuronX = 0; neuronX < layer.size(); ++neuronX) {
-                Neuron neuron = layer.getNeuron(neuronX);
+            for(Neuron neuron : layer.toList()) {
+                LinkedList<BigDecimal> weights = new LinkedList<>();
+                index = 0;
                 
                 // for every weight in that neuron
-                for(int weightX = 0; weightX < neuron.size(); ++weightX) {
+                for(BigDecimal weight : neuron.getWeights()) {
                     
-                    BigDecimal weight = neuron.getWeight(weightX);
-                    BigDecimal bias = neuron.getBias();
-                    BigDecimal originalCost;
-                    BigDecimal costForHigher;
-                    BigDecimal costForLower;
+                    higherWeight = weight.add(this.learningRate);
+                    lowerWeight = weight.subtract(this.learningRate);
                     
-                    BigDecimal higherWeight = weight.add(this.learningCurve);
-                    BigDecimal lowerWeight = weight.subtract(this.learningCurve);
-                    BigDecimal higherBias = bias.add(this.learningCurve);
-                    BigDecimal lowerBias = bias.subtract(this.learningCurve);
-                    
-                    originalCost = calculateCost(expected, output);
-                    
-                    neuron.setWeight(weightX, higherWeight);
+                    neuron.setWeight(index, higherWeight);
                     output = this.run(input);
                     costForHigher = calculateCost(expected, output);
                     
-                    neuron.setWeight(weightX, lowerWeight);
+                    neuron.setWeight(index, lowerWeight);
                     output = this.run(input);
                     costForLower = calculateCost(expected, output);
                     
@@ -117,34 +123,43 @@ public class Network
                     
                     // if costForLower is higher than
                     if(costForLower.compareTo(costForHigher) > 0) {
-                        neuron.setWeight(weightX, higherWeight);
+                        weights.add(higherWeight);
                     } else if(costForLower.compareTo(costForHigher) < 0){
-                        neuron.setWeight(weightX, lowerWeight);
+                        weights.add(lowerWeight);
                         
-                        // if previous ifs == 0, then if original cost is greater, change bias to randomly to lower one
+                    // if previous ifs == 0, then if original cost is greater, change bias to randomly to lower one
                     } else if(originalCost.compareTo(costForLower) > 0) {
-                        neuron.setWeight(weightX, lowerWeight);
+                        weights.add(new BigDecimal(String.valueOf(Math.random())));
                     }
                     
-                    // do the same for the biases
+                    ++index;
+                }
+                
+                neuron.setWeights(weights);
+                
+                bias = neuron.getBias();
+                higherBias = bias.add(this.learningRate);
+                lowerBias = bias.subtract(this.learningRate);
+                
+                neuron.setBias(lowerBias);
+                output = this.run(input);
+                costForLower = calculateCost(expected, output);
+                
+                neuron.setBias(higherBias);
+                output = this.run(input);
+                costForHigher = calculateCost(expected, output);
+                
+                
+                // if costs are the same, make no changes
+                // if costForLower is higher than
+                if(costForLower.compareTo(costForHigher) > 0) {
                     neuron.setBias(higherBias);
-                    output = this.run(input);
-                    costForHigher = calculateCost(expected, output);
-                    
+                } else if(costForLower.compareTo(costForHigher) < 0){
                     neuron.setBias(lowerBias);
-                    output = this.run(input);
-                    costForLower = calculateCost(expected, output);
-                    
-                    // if costForLower is higher than
-                    if(costForLower.compareTo(costForHigher) > 0) {
-                        neuron.setBias(higherBias);
-                    } else if(costForLower.compareTo(costForHigher) < 0){
-                        neuron.setBias(lowerBias);
                         
-                        // if previous ifs == 0, then if original cost is greater, change bias to randomly to lower one
-                    } else if(originalCost.compareTo(costForLower) > 0) {
-                        neuron.setBias(lowerBias);
-                    }
+                // if previous ifs == 0, then if original cost is greater, change bias to randomly to lower one
+                } else if(originalCost.compareTo(costForLower) > 0) {
+                    bias = bias.add(new BigDecimal(String.valueOf(Math.random())));
                 }
             }
         }

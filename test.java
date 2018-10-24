@@ -9,9 +9,11 @@ public class test
 
     public static void main(String[] args)
     {
-        int[] layerSizes = {2,5,1};
-        
-        Network net = new Network(layerSizes);
+        LinkedList<Integer> layerSizes = new LinkedList<>();
+        layerSizes.add(2);
+        layerSizes.add(5);
+        layerSizes.add(1);
+        Network net = new Network(layerSizes, "0.10");
         
         LinkedList<BigDecimal> input1 = new LinkedList<>();
         LinkedList<BigDecimal> input2 = new LinkedList<>();
@@ -28,7 +30,8 @@ public class test
         expect2.add(new BigDecimal("0.85"));
         
         System.out.println(net.run(input1));
-        
+        net.train(expect1, input1);
+        System.out.println(net.run(input1));
         for(int i = 0; i < 500; ++i) {
             // net.train(expect1, input1);
             net.train(expect2, input2);
@@ -37,12 +40,12 @@ public class test
             System.out.println("Getting there: " + i);
             
             if(i%5 == 0) {
-                System.out.println(net.run(input1));
+               System.out.println(net.run(input1));
             }
         }
         
         
-        System.out.println(output);
+        //System.out.println(output);
 
     }
 
